@@ -1,0 +1,21 @@
+# Thrisha Rai: Core Git Ignores
+# Dependencies and Virtual Environments
+venv/
+env/
+node_modules/
+*.pyc
+__pycache__/
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Uploaded Files (Data should not be version controlled)
+uploads/
+
+# IDE/Editor Files
+.vscode/
+.idea/
+
+# Flask/Temporary Data
+instance/

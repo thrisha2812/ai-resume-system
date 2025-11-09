@@ -1,0 +1,11 @@
+flask
+flask-restful
+flask-pymongo
+flask-jwt-extended
+flask-bcrypt
+flask-cors
+python-dotenv
+spacy
+scikit-learn
+pdfplumber
+docx2txt
