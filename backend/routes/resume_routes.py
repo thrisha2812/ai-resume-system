@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse
-from flask_jwt_extended import jwt_required, get_jwt_identity
-from werkzeug.datastructures import FileStorage
+from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request
+from flask import request  # Add this import
 from database import mongo
 from utils.pdf_extractor import extract_text_from_file
 from services.resume_parser import parse_resume
@@ -13,20 +13,35 @@ import re
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-upload_parser = reqparse.RequestParser()
-upload_parser.add_argument('resume', type=FileStorage, location='files', required=True, help="Resume file is required")
-
+# Remove the file upload parser - we'll use request.files directly
 analyze_parser = reqparse.RequestParser()
 analyze_parser.add_argument('job_description', type=str, required=True, help="Job description is required")
 
 class ResumeUpload(Resource):
-    @jwt_required()
+    #@jwt_required()
     def post(self):
-        data = upload_parser.parse_args()
-        resume_file = data['resume']
+        # Use Flask's request.files instead of reqparse for file uploads
+        try:
+            verify_jwt_in_request()
+        except Exception as e:
+            # If verification fails (e.g., token missing or expired)
+            return {'message': f'Authorization failed: {str(e)}'}, 401
+        if 'resume' not in request.files:
+            return {'message': 'No resume file provided'}, 422
+        
+        resume_file = request.files['resume']
+        
+        if resume_file.filename == '':
+            return {'message': 'No file selected'}, 422
+        
+        # Validate file extension
+        allowed_extensions = {'.pdf', '.docx'}
+        file_ext = os.path.splitext(resume_file.filename)[1].lower()
+        if file_ext not in allowed_extensions:
+            return {'message': 'Only PDF and DOCX files are allowed'}, 400
         
         identity = get_jwt_identity()
-        user = User.find_by_email(identity['email'])
+        user = User.find_by_email(identity)
         if not user:
             return {'message': 'User not found'}, 404
         

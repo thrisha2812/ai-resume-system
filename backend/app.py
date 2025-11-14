@@ -21,8 +21,22 @@ def create_app():
     init_db(app)
     bcrypt.init_app(app) # Initialize bcrypt here
     jwt.init_app(app)
-    CORS(app)
-
+    CORS(app, 
+        resources={r"/api/*": {"origins": "http://localhost:5173"}},
+        supports_credentials=True # Crucial for handling cookies/Authorization headers
+    )
+    app.config["JWT_DECODE_STRATEGIES"] = [
+        {
+            "type": "header",
+            "extractors": [
+                {"type": "Authorization", "location": "headers"}
+            ]
+        }
+    ]
+    app.config["JWT_TOKEN_LOCATION"] = ["headers"]
+    app.config["JWT_HEADER_NAME"] = "Authorization"
+    app.config["JWT_HEADER_TYPE"] = "Bearer"
+    app.config['JWT_SUPPRESS_BODY_PARSING'] = True
     api = Api(app, prefix="/api")
 
     # Register API routes

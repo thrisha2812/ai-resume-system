@@ -36,7 +36,22 @@ class UserLogin(Resource):
         user = User.find_by_email(data['email'])
 
         if user and User.check_password(user['password'], data['password']):
-            access_token = create_access_token(identity={'email': user['email'], 'role': user['role'], 'id': str(user['_id'])})
+            
+            # 1. Define the user's string identity (the JWT 'sub' claim)
+            identity_string = user['email']
+            
+            # 2. Define additional claims (user role and ID) as a dictionary
+            claims_data = {
+                'role': user['role'],
+                'user_id': str(user['_id']) # Ensure _id is converted to a string
+            }
+            
+            # 3. Create the token using the string identity and claims
+            access_token = create_access_token(
+                identity=identity_string,
+                additional_claims=claims_data
+            )
+            
             return {
                 'message': 'Logged in successfully',
                 'access_token': access_token,
