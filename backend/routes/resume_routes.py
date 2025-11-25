@@ -92,6 +92,7 @@ class ResumeAnalyze(Resource):
             candidates.append({
                 'name': parsed_data.get('name', 'Unknown'),
                 'email': parsed_data.get('email', 'Unknown'),
+                'years_of_experience': parsed_data.get('years_of_experience', 0),
                 'score': score,
                 'matched_skills': matched,
                 'missing_skills': missing

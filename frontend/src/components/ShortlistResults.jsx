@@ -1,5 +1,5 @@
 import React from 'react';
-
+import { FiBriefcase, FiUser, FiMail } from 'react-icons/fi';
 const ScoreBar = ({ score }) => {
   let bgColor = 'bg-red-500';
   if (score > 75) bgColor = 'bg-green-500';
@@ -32,6 +32,12 @@ const ShortlistResults = ({ results }) => {
           <div key={index} className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
             <div className="flex flex-col md:flex-row justify-between md:items-center mb-2">
               <h4 className="text-lg font-bold text-blue-700">{index + 1}. {candidate.name}</h4>
+              <span className="flex items-center px-3 py-1 text-sm font-medium text-purple-700 bg-purple-100 rounded-full">
+                    <FiBriefcase className="mr-1.5" />
+                    {candidate.years_of_experience > 0 
+                      ? `${candidate.years_of_experience} Years` 
+                      : 'Exp: N/A'}
+                  </span>
               <span className="text-sm text-gray-600">{candidate.email}</span>
             </div>
             

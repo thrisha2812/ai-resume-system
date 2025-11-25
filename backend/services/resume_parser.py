@@ -7,62 +7,70 @@ try:
 except IOError:
     nlp = spacy.blank("en")
 
-# (Keep the big SKILLS_LIST exactly as it was - I have shortened it here for brevity, 
-# but YOU should keep the full list you pasted earlier)
 SKILLS_LIST = [
     'python', 'java', 'c++', 'c', 'c#', 'javascript', 'typescript', 'html', 'css', 'sql', 'nosql', 'go', 'rust', 'php', 'ruby', 'swift', 'kotlin',
     'react', 'react.js', 'angular', 'vue', 'next.js', 'node.js', 'express', 'flask', 'django', 'fastapi', 'spring', 'spring boot', 'hibernate', 'pandas', 'numpy', 'scikit-learn', 'tensorflow', 'pytorch', 'keras', 'tailwind', 'tailwindcss', 'bootstrap', 'material-ui',
     'mongodb', 'postgresql', 'mysql', 'sqlite', 'redis', 'cassandra', 'oracle', 'firebase', 'dynamodb',
     'git', 'github', 'gitlab', 'docker', 'kubernetes', 'jenkins', 'aws', 'azure', 'gcp', 'terraform', 'ansible', 'circleci', 'linux', 'bash', 'nginx',
-    'rest api', 'restful api', 'graphql', 'microservices', 'agile', 'scrum', 'machine learning', 'deep learning', 'nlp', 'data science', 'artificial intelligence', 'system design', 'oop', 'dsa', 'seo', 'sem', 'marketing'
+    'rest api', 'restful api', 'graphql', 'microservices', 'agile', 'scrum', 'machine learning', 'deep learning', 'nlp', 'data science', 'artificial intelligence', 'system design', 'oop', 'dsa', 'seo', 'sem', 'marketing', 'excel', 'tally'
 ]
 
 def clean_text_for_name(text):
-    # Remove email addresses
     text = re.sub(r'\S+@\S+', '', text)
-    # Remove phone numbers (approximate)
     text = re.sub(r'\+?\d[\d -]{8,12}\d', '', text)
-    # Remove non-name characters (keep letters, spaces, dots)
     text = re.sub(r'[^a-zA-Z\s\.]', '', text)
-    # Remove extra spaces
     return text.strip()
 
+def extract_experience(text):
+    # Pattern: Looks for a number (like 5, 2.5) followed by "years", "year", "yrs"
+    # \d+       = one or more digits
+    # (?:\.\d+)? = optional decimal part (like .5)
+    # \+?       = optional plus sign (like 5+)
+    # \s* = optional space
+    pattern = r'(\d+(?:\.\d+)?)\+?\s*(?:years?|yrs?|yoe)'
+    
+    matches = re.findall(pattern, text.lower())
+    
+    if matches:
+        print(f"DEBUG: Found experience numbers: {matches}") # <-- Watch your terminal for this!
+        try:
+            # Convert to floats and get the biggest number found
+            years = [float(m) for m in matches]
+            return max(years)
+        except ValueError:
+            return 0
+    return 0
+
 def parse_resume(text):
-    # 1. Extract Email (Do this first, it's easy and accurate)
+    doc = nlp(text[:5000]) # Limit to first 5000 chars for speed
+    
+    # 1. Extract Email
     email = "No Email Found"
     email_match = re.search(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', text)
     if email_match:
         email = email_match.group(0)
 
-    # 2. Smart Name Extraction
+    # 2. Extract Name
     name = "Unknown Candidate"
-    
-    # Strategy A: Spacy Entity Recognition (Strict)
-    # Only look at the first 500 chars (names are at the top)
-    doc = nlp(text[:500]) 
-    
-    for ent in doc.ents:
+    doc_name = nlp(text[:500])
+    for ent in doc_name.ents:
         if ent.label_ == 'PERSON':
-            # Clean the entity (remove punctuation/titles)
             clean_ent = clean_text_for_name(ent.text)
-            # A valid name usually has 2-4 words (e.g., "Rahul Mishra", not "Rahul")
             if 2 <= len(clean_ent.split()) <= 4:
                 name = clean_ent.title()
                 break
     
-    # Strategy B: Fallback to First Line (but cleaner)
     if name == "Unknown Candidate":
         lines = [line.strip() for line in text.split('\n') if line.strip()]
         if lines:
-            # Take the first line
-            first_line = lines[0]
-            # Clean it heavily (remove emails, numbers, locations if possible)
-            cleaned_line = clean_text_for_name(first_line)
-            # If the remaining text is short enough to be a name, take it
+            cleaned_line = clean_text_for_name(lines[0])
             if 2 <= len(cleaned_line.split()) <= 5:
                 name = cleaned_line.title()
 
-    # 3. Extract Skills
+    # 3. Extract Experience (New Function)
+    years_exp = extract_experience(text)
+
+    # 4. Extract Skills
     skills = []
     text_lower = text.lower()
     for skill in SKILLS_LIST:
@@ -73,6 +81,7 @@ def parse_resume(text):
     return {
         'name': name,
         'email': email,
+        'years_of_experience': years_exp, # This sends the number to the database
         'skills': list(set(skills)), 
         'education': [], 
         'full_text': text
