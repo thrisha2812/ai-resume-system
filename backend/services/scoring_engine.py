@@ -1,7 +1,9 @@
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from services.resume_parser import SKILLS_LIST # <-- Import our list of tech skills
+from sentence_transformers import SentenceTransformer, util
+from services.resume_parser import SKILLS_LIST
 import re
+
+# Load the model (This will download ~80MB the first time you run it)
+model = SentenceTransformer('all-MiniLM-L6-v2')
 
 def clean_text(text):
     text = text.lower()
@@ -11,23 +13,30 @@ def clean_text(text):
     return text
 
 def calculate_suitability_score(resume_text, job_description_text):
+    # 0. Validation
     if not resume_text or not job_description_text:
         return 0, [], []
 
+    # --- PART 1: The Smart Scoring (SBERT) ---
+    # This understands context (e.g., "coding" == "development")
+    
+    # Encode text into high-dimensional vectors
+    embeddings1 = model.encode(resume_text, convert_to_tensor=True)
+    embeddings2 = model.encode(job_description_text, convert_to_tensor=True)
+
+    # Calculate cosine similarity between the meanings
+    cosine_scores = util.cos_sim(embeddings1, embeddings2)
+    
+    # Extract the number and convert to percentage
+    score = float(cosine_scores[0][0]) * 100
+    
+    # --- PART 2: The Visual Skills (Set Matching) ---
+    # We still need this to show the recruiter WHICH skills matched
+    
     cleaned_resume = clean_text(resume_text)
     cleaned_jd = clean_text(job_description_text)
     
-    documents = [cleaned_resume, cleaned_jd]
-    
     try:
-        # 1. Calculate the Score using TF-IDF (keep this as is)
-        tfidf_vectorizer = TfidfVectorizer(stop_words='english')
-        tfidf_matrix = tfidf_vectorizer.fit_transform(documents)
-        
-        cosine_sim = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])
-        score = float(cosine_sim[0][0]) * 100
-        
-        # 2. Extract Smart Skills (The Fix)
         # We get words from the resume & JD
         jd_words = set(cleaned_jd.split())
         resume_words = set(cleaned_resume.split())
@@ -43,5 +52,7 @@ def calculate_suitability_score(resume_text, job_description_text):
         
         return round(score, 2), matched_skills, missing_skills
 
-    except ValueError:
-        return 0, [], []
+    except Exception as e:
+        print(f"Error in skills extraction: {e}")
+        # If skills fail, still return the SBERT score
+        return round(score, 2), [], []
