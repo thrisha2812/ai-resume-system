@@ -8,12 +8,11 @@ const JobInputForm = ({ setResults, setLoading }) => {
     e.preventDefault();
     setLoading(true);
     setResults(null);
-    const token = localStorage.getItem('token');
 
     try {
+      // No token needed anymore
       const res = await axios.post('http://localhost:5000/api/resume/analyze', 
-        { job_description: jobDescription },
-        { headers: { 'Authorization': `Bearer ${token}` } }
+        { job_description: jobDescription }
       );
       setResults(res.data.results);
     } catch (err) {
@@ -38,12 +37,15 @@ const JobInputForm = ({ setResults, setLoading }) => {
         className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         required
       />
-      <button 
-        type="submit" 
-        className="w-full px-6 py-3 mt-4 font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 transition"
-      >
-        Analyze & Shortlist Candidates
-      </button>
+      
+      <div className="mt-4">
+        <button 
+            type="submit" 
+            className="w-full px-6 py-3 font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 transition"
+        >
+            Analyze & Shortlist Candidates
+        </button>
+      </div>
     </form>
   );
 };
