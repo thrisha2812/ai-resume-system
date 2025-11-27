@@ -4,7 +4,8 @@ from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from config import Config
 from database import init_db
-from models.user_model import bcrypt  # Import bcrypt from user_model
+from models.user_model import bcrypt
+from routes.interview_routes import init_interview_routes
 
 # Import routes
 from routes.user_routes import init_user_routes
@@ -42,6 +43,7 @@ def create_app():
     # Register API routes
     init_user_routes(api)
     init_resume_routes(api)
+    init_interview_routes(api)
     # init_interview_routes(api) # Leave this commented out
 
     @app.route('/')
