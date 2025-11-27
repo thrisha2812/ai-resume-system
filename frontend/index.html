@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Interview System</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🤖 AI Interview System</div>
+            <div class="nav-links">
+                <a href="/" id="navHome">Home</a>
+                <a href="/dashboard.html" id="navDashboard" style="display:none;">Dashboard</a>
+                <a href="#" id="navLogout" style="display:none;">Logout</a>
+                <a href="#" id="navLogin">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="authSection">
+            <div class="auth-container">
+                <h1>Welcome to AI Interview System</h1>
+                <p>Prepare for your technical interviews with AI-powered questions and feedback</p>
+                
+                <div class="auth-tabs">
+                    <button class="tab-button active" onclick="showTab('login')">Login</button>
+                    <button class="tab-button" onclick="showTab('signup')">Sign Up</button>
+                </div>
+                
+                <div id="loginTab" class="tab-content active">
+                    <form onsubmit="handleLogin(event)">
+                        <input type="email" id="loginEmail" placeholder="Email" required>
+                        <input type="password" id="loginPassword" placeholder="Password" required>
+                        <button type="submit">Login</button>
+                    </form>
+                    <p id="loginError" class="error"></p>
+                </div>
+                
+                <div id="signupTab" class="tab-content">
+                    <form onsubmit="handleSignup(event)">
+                        <input type="text" id="signupName" placeholder="Full Name" required>
+                        <input type="email" id="signupEmail" placeholder="Email" required>
+                        <input type="password" id="signupPassword" placeholder="Password" required>
+                        <input type="password" id="signupConfirm" placeholder="Confirm Password" required>
+                        <button type="submit">Sign Up</button>
+                    </form>
+                    <p id="signupError" class="error"></p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="mainSection" style="display:none;">
+            <div class="hero">
+                <h1>Start Your Interview Preparation</h1>
+                <p>Upload your resume and get personalized interview questions</p>
+                
+                <div class="action-cards">
+                    <div class="card" onclick="navigateTo('/upload.html')">
+                        <div class="card-icon">📄</div>
+                        <h3>Upload Resume</h3>
+                        <p>Extract skills and start practicing</p>
+                    </div>
+                    
+                    <div class="card" onclick="navigateTo('/interview.html')">
+                        <div class="card-icon">❓</div>
+                        <h3>Start Interview</h3>
+                        <p>Begin a practice interview session</p>
+                    </div>
+                    
+                    <div class="card" onclick="navigateTo('/dashboard.html')">
+                        <div class="card-icon">📊</div>
+                        <h3>View Progress</h3>
+                        <p>Track your interview history and scores</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+</body>
+</html>

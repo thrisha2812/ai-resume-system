@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Resume - AI Interview System</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">🤖 AI Interview System</div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/dashboard.html">Dashboard</a>
+                <a href="#" onclick="logout()">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="upload-container">
+            <h1>Upload Your Resume</h1>
+            <p>We'll extract your skills and customize interview questions for you</p>
+            
+            <div class="upload-form">
+                <div class="file-upload">
+                    <label for="resumeFile">Choose File (TXT, PDF, or DOC)</label>
+                    <input type="file" id="resumeFile" accept=".txt,.pdf,.doc,.docx" required>
+                </div>
+                
+                <div id="textUpload" class="text-upload">
+                    <h3>Or paste your resume text:</h3>
+                    <textarea id="resumeText" placeholder="Paste your resume content here..."></textarea>
+                </div>
+                
+                <button onclick="handleUploadResume()" class="btn-primary">Upload & Extract Skills</button>
+                <p id="uploadError" class="error"></p>
+            </div>
+            
+            <div id="skillsDisplay" style="display:none;" class="skills-section">
+                <h2>Extracted Skills</h2>
+                <div id="skillsList" class="skills-list"></div>
+                <button onclick="startInterview()" class="btn-primary">Start Interview</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/upload.js"></script>
+</body>
+</html>
